@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="root"></div>
+</body>
+<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script>
+    // 这一集我们干嘛，我们实现一个类,将文本渲染到dom
+    //将
+    class ReactDOMTextComponent {
+        constructor(element) {
+            this._currentElement = element + '';
+            this._rootNode = null
+        }
+
+        mountComponent() {
+            return `<span>${this._currentElement}</span>`
+        }
+    }
+
+    function instantiateReactComponent(element) {
+        //element为字符串,也有可能为class
+        if(typeof element === 'string' || typeof element === 'number') {
+            return new ReactDOMTextComponent(element)
+        }
+         
+    }
+
+
+    function mount(element, node) {
+        //将elment转为domcomponent
+        const componentInstance = instantiateReactComponent(element)
+        const renderNode = componentInstance.mountComponent()    
+        $(node).html(renderNode)
+    }
+    
+    const Preat = {
+        render: mount
+    }
+
+    //面向这句话编程
+    Preat.render('将dom渲染到root节点下',document.getElementById('root'))
+</script>
+</html>

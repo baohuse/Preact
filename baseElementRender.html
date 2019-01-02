@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <!-- 面向这句话编程 -->
+    <!--  -->
+    <div id="root"></div>
+</body>
+<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script>
+    // 这一集我们干嘛，我们实现一个类,将文本渲染到dom
+    class ReactDOMTextComponent {
+        constructor(element) {
+            this._currentElement = element + '';
+            this._rootNodeId = null
+        }
+
+        mountComponent() {
+            return `<span>${this._currentElement}</span>`
+        }
+    }
+
+    //解析对象为真实的dom节点
+    class ReactDOMComponent {
+        constructor(element) {
+            this._currentElement = element
+            this._rootNodeId = null
+            this._domNode = null
+        }
+
+        mountComponent() {
+            //生成div元素
+            const node = document.createElement(this._currentElement.type)
+            //给元素加属性即element传进来的哪些东西
+            this._domNode = node;
+            const props = this._currentElement.props;
+            //这块先不要管 style, className , 就管一般props跟children
+            //设置属性
+            Object.keys(props).forEach(propsName => {
+                if(propsName === 'children') return
+                //设置事件,匹配on开头的
+                node.setAttribute(propsName, props[propsName])
+            })
+            //遍历children，初始化dom子节点
+            this._createInitialDomChildren(props)
+
+            return node
+        }
+
+        _createInitialDomChildren(props) {
+            //创建文本节点
+            if(
+                typeof props.children === 'string' ||
+                typeof props.children === 'number'
+            ) {
+                const textNode = document.createTextNode(props.children)
+                this._domNode.appendChild(textNode)
+            } else if(props.children) {
+
+                const children = Array.isArray(props.children) ? props.children : [props.children]
+                children.forEach((child, i) => {
+                    //element -> component
+                    //这里就是递归，调用自身，一层一层吧 element转化为我们的dom节点
+                    const childComponent = instantiateReactComponent(child)
+                    //调用自身的mountComponent生成dom节点并挂载
+                    const childNode = childComponent.mountComponent()
+                    this._domNode.appendChild(childNode)
+                })
+            }
+        }
+    }
+
+    function instantiateReactComponent(element) {
+        //element为字符串,也有可能为class
+        if(typeof element === 'string' || typeof element === 'number') {
+            return new ReactDOMTextComponent(element)
+        }
+        //浏览器的dom节点的情况
+        if(typeof element === 'object' && typeof element.type === 'string') {
+            return new ReactDOMComponent(element)
+        }
+         
+    }
+
+
+    function mount(element, node) {
+        //将elment转为domcomponent
+        const componentInstance = instantiateReactComponent(element)
+        const renderNode = componentInstance.mountComponent()  
+        console.log(renderNode)  
+        $(node).html(renderNode)
+    }
+
+    function createElement(type, config, children) {
+        const props = {...config}
+        //把所有children挂到props的children属性上面
+        //children有可能是一个element,也有可能是一个数组
+        const childrenLength = [].slice.call(arguments).length -2;
+        if(childrenLength > 1) {
+            props.children = [].slice.call(arguments, 2)
+        }else {
+            props.children = children
+        }
+        //这个函数返回一个对象
+        return {
+            type,
+            props
+        }
+    }
+    
+    const Preat = {
+        render: mount,
+        createElement: createElement
+    }
+
+
+    //面向这句话编程
+    const element = Preat.createElement('div', { id: 'ni', name: 'sss'}, '把element渲染到页面上')
+    console.log(element)
+    Preat.render(element,document.getElementById('root'))
+</script>
+</html>
