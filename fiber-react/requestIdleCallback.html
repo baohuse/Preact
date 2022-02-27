@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+
+  <script>
+    //  requestIdleCallback 浏览器空闲时候的回调， 将在浏览器的空闲时段内调⽤的函数队列
+    // timeRemaining 返回帧还剩多长时间供用户使用
+    // didTimeout 返回回调任务是否超时
+
+    /**
+     * 计算函数执行时间
+     */
+     const computedExecutionTime = (fn) => {
+      const startTime = new Date().getTime();
+      typeof fn === "function" && fn();
+      const endTime = new Date().getTime();
+      const executionTime = endTime - startTime;
+      return executionTime;
+    };
+
+    //  有如下的任务队列, task1, task2, task3,
+    const taskQueue = [
+      () => {
+        console.log("任务一开始了");
+        // 渲染一个节点
+        console.log("任务一结束了");
+      },
+      () => {
+        console.log("任务二开始了");
+
+        // -----这段代码的执行时间start----
+
+        const time = computedExecutionTime(() => {
+          let arr = [];
+          for (let index = 0; index < 3000000; index++) {
+            arr.push(index);
+          }
+        });
+        console.log("任务二执行时间" , time);
+        // -----这段代码的执行时间end----
+        // 渲染一个节点
+        console.log("任务二结束了");
+      },
+      () => {
+        console.log("任务三开始了");
+        // 渲染一个节点
+        console.log("任务三结束了");
+      },
+    ];
+
+    const performUnitWork = () => {
+      // 取出第一个队列中的第一个任务并执行
+      taskQueue.shift()();
+    };
+
+    // 循环工作
+    const workLoop = (deadline) => {
+      console.log(`此帧的剩余时间为: ${deadline.timeRemaining()} 毫秒`);
+      // 如果此帧剩余时间大于0或者已经到了定义的超时时间，且当时存在任务，则直接执行这个任务
+      // 如果没有剩余时间，则应该放弃执行任务控制权，把执行权交还给浏览器
+      while (
+        (deadline.timeRemaining() > 0 || deadline.didTimeout) &&
+        taskQueue.length > 0
+      ) {
+        performUnitWork();
+      }
+
+      // 如果还有未完成的任务，继续调用requestIdleCallback申请下一个时间片
+      if (taskQueue.length > 0) {
+        window.requestIdleCallback(workloop, { timeout: 1000 });
+      }
+    };
+
+    requestIdleCallback(workLoop, { timeout: 1000 });
+  </script>
+</html>
