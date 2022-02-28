@@ -16,7 +16,7 @@ let nextUnitOfWork = null;
  * @param {element} 虚拟 DOM
  * @param {container} 真实 DOM
  */
-function render(element, container) {
+export function render(element, container) {
   // 将根节点设置为第一个将要工作单元
   nextUnitOfWork = {
     dom: container,
@@ -102,9 +102,6 @@ function performUnitOfWork(fiber) {
   }
 
   /** 寻找下一个工作单元，先查找孩子，然后兄弟，如果没有就返回父节点 */
-
-  console.log('feber', fiber);
-
   if (fiber.child) {
     return fiber.child;
   }
@@ -141,48 +138,5 @@ requestIdleCallback(workLoop);
 
 
 
-// 测试
-
-
-const element = {
-    "type": "div",
-    "props": {
-        "children": [
-            {
-                "type": "h1",
-                "props": {
-                    "children": [
-                        {
-                            "type": "p",
-                            "props": {
-                                "children": [
-                                    {
-                                        "type": "TEXT_ELEMENT",
-                                        "props": {
-                                            "nodeValue": "我是P标签",
-                                            "children": []
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "type": "a",
-                            "props": {
-                                "children": []
-                            }
-                        }
-                    ]
-                }
-            },
-            {
-                "type": "h2",
-                "props": {
-                    "children": []
-                }
-            }
-        ]
-    }
-} 
 
 

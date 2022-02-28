@@ -10,9 +10,51 @@
     <div id="root"></div>
   </body>
 
- <script src="./react-dom.js"></script>
+  <script src="./react-dom.js"></script>
 
- <script>
-     render(element, document.getElementById('root'))
- </script>
+  <script>
+    // 测试
+
+    const element = {
+      type: "div",
+      props: {
+        children: [
+          {
+            type: "h1",
+            props: {
+              children: [
+                {
+                  type: "p",
+                  props: {
+                    children: [
+                      {
+                        type: "TEXT_ELEMENT",
+                        props: {
+                          nodeValue: "我是P标签",
+                          children: [],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  type: "a",
+                  props: {
+                    children: [],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            type: "h2",
+            props: {
+              children: [],
+            },
+          },
+        ],
+      },
+    };
+    render(element, document.getElementById("root"));
+  </script>
 </html>
